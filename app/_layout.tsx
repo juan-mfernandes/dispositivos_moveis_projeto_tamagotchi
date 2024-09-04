@@ -31,6 +31,7 @@ export default function RootLayout() {
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
         <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen name="petDetailsScreen" options={{ headerShown: false }} />
         <Stack.Screen name="chooseScreen" options={{ headerShown: false }} />
         <Stack.Screen name="registerScreen" options={{ headerShown: false }} />
         <Stack.Screen name="+not-found" />

@@ -7,8 +7,9 @@ const IndexScreen = () => {
 
     const router = useRouter()
     const nextScreen = ()  => {  
-        router.push("/chooseScreen")
+        router.push("/registerScreen")
     }
+
 
     return (
         <SafeAreaView style={styles.container}>
