@@ -1,10 +1,16 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import { Text, TextInput, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFonts } from 'expo-font';
+import { useRouter } from 'expo-router';
 
 const RegisterScreen = () => {
   const [name, setName] = useState('');
+  const router = useRouter();
+
+  const confirmedName = () => {
+      router.replace("/petDetailsScreen");
+  }
 
   const [fontsLoaded] = useFonts({
     'PixelFont': require('@/assets/fonts/Minecraft.ttf'), 
@@ -25,7 +31,7 @@ const RegisterScreen = () => {
         value={name}
         onChangeText={setName}
       />
-      <TouchableOpacity style={styles.button}>
+      <TouchableOpacity style={styles.button} onPress={confirmedName}>
         <Text style={styles.buttonText}>Confirm</Text>
       </TouchableOpacity>
     </SafeAreaView>
@@ -38,7 +44,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FF8C00',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 40,
+    paddingVertical: 50,
     paddingHorizontal: 30,
   },
   title: {
@@ -46,6 +52,7 @@ const styles = StyleSheet.create({
     color: '#FFF',
     paddingHorizontal: 30,
     paddingVertical: 20,
+    paddingBottom: 10,
     backgroundColor: '#FF4500',
     borderRadius: 10,
     borderColor: '#000',
@@ -78,11 +85,11 @@ const styles = StyleSheet.create({
     borderWidth: 3,
     alignItems: 'center',
     width: '60%',
+    fontFamily: 'PixelFont'
   },
   buttonText: {
     color: '#FFF',
-    fontWeight: 'bold',
-    fontSize: 28,
+    fontSize: 25,
     fontFamily: 'PixelFont',
   },
 });
