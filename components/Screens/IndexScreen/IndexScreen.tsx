@@ -7,7 +7,7 @@ const IndexScreen = () => {
 
     const router = useRouter()
     const nextScreen = ()  => {  
-        router.push("/registerScreen")
+        router.push("/chooseScreen")
     }
 
 

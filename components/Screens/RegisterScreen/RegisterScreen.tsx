@@ -1,39 +1,79 @@
-import React, { useState } from 'react';
-import { Text, TextInput, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { Text, TextInput, TouchableOpacity, Image, StyleSheet, KeyboardAvoidingView, Platform, Alert, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useFonts } from 'expo-font';
 import { useRouter } from 'expo-router';
+import { useFonts } from 'expo-font';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+// Tipando o objeto petData corretamente
+const petData: Record<string, any> = {
+  '1': require('@/assets/images/rabbitTamagotchi.png'),
+  '2': require('@/assets/images/mouseTamagotchi.png'),
+  '3': require('@/assets/images/monkeyTamagotchi.png'),
+  '4': require('@/assets/images/catTamagochi.png'),
+};
 
 const RegisterScreen = () => {
   const [name, setName] = useState('');
+  const [selectedPet, setSelectedPet] = useState<string | null>(null);
   const router = useRouter();
 
-  const confirmedName = () => {
-      router.replace("/petDetailsScreen");
-  }
+  useEffect(() => {
+    const loadSelectedPet = async () => {
+      try {
+        const petId = await AsyncStorage.getItem('@selectedPet');
+        if (petId) {
+          setSelectedPet(petId);
+        }
+      } catch (error) {
+        console.log('Erro ao carregar o pet:', error);
+      }
+    };
+    loadSelectedPet();
+  }, []);
+
+  const confirmName = () => {
+    if (name.trim() === '') {
+      Alert.alert('Error', 'Please enter a name for your Tamagotchi.');
+      return;
+    }
+    router.push('/petDetailsScreen');
+  };
 
   const [fontsLoaded] = useFonts({
-    'PixelFont': require('@/assets/fonts/Minecraft.ttf'), 
+    PixelFont: require('@/assets/fonts/Minecraft.ttf'),
   });
 
   if (!fontsLoaded) {
-    return null; 
+    return null;
   }
 
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Choose a name</Text>
-      <Image source={require('@/assets/images/mouseTamagotchi.gif')} style={styles.image} resizeMode="contain" />
-      <TextInput
-        style={styles.input}
-        placeholder="Enter name"
-        placeholderTextColor="#999"
-        value={name}
-        onChangeText={setName}
-      />
-      <TouchableOpacity style={styles.button} onPress={confirmedName}>
-        <Text style={styles.buttonText}>Confirm</Text>
-      </TouchableOpacity>
+      
+      {selectedPet && (
+        <Image source={petData[selectedPet]} style={styles.image} resizeMode="contain" />
+      )}
+
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter name"
+          placeholderTextColor="#999"
+          value={name}
+          onChangeText={setName}
+        />
+      </View>
+
+      <KeyboardAvoidingView
+        style={styles.buttonContainer}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <TouchableOpacity style={styles.button} onPress={confirmName}>
+          <Text style={styles.buttonText}>Confirm</Text>
+        </TouchableOpacity>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
@@ -64,8 +104,11 @@ const styles = StyleSheet.create({
     width: 200,
     height: 200,
   },
-  input: {
+  inputContainer: {
     width: '85%',
+    marginBottom: 20,
+  },
+  input: {
     height: 50,
     borderColor: '#000',
     borderWidth: 2,
@@ -76,6 +119,10 @@ const styles = StyleSheet.create({
     fontSize: 20,
     textAlign: 'center',
   },
+  buttonContainer: {
+    width: '100%',
+    alignItems: 'center',
+  },
   button: {
     backgroundColor: '#FF4500',
     paddingHorizontal: 40,
@@ -85,11 +132,10 @@ const styles = StyleSheet.create({
     borderWidth: 3,
     alignItems: 'center',
     width: '60%',
-    fontFamily: 'PixelFont'
   },
   buttonText: {
     color: '#FFF',
-    fontSize: 25,
+    fontSize: 22,
     fontFamily: 'PixelFont',
   },
 });
