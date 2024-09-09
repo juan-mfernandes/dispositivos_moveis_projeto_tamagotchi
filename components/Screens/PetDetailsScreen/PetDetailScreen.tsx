@@ -3,6 +3,7 @@ import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ProgressBar from './ProgressBar';
+import { useRouter } from 'expo-router'; // Usando o useRouter para navegação
 
 const petData: Record<string, any> = {
   '1': require('@/assets/images/rabbitTamagotchi.png'),
@@ -30,12 +31,14 @@ const getStatusColor = (status: string) => {
   }
 };
 
+
 const PetDetailScreen = () => {
   const [selectedPet, setSelectedPet] = useState<string | null>(null);
   const [hunger, setHunger] = useState(100);
   const [sleep, setSleep] = useState(100);
   const [fun, setFun] = useState(100);
   const [status, setStatus] = useState('GOOD');
+  const router = useRouter(); // Para navegação
 
   useEffect(() => {
     const loadSelectedPet = async () => {
@@ -81,6 +84,18 @@ const PetDetailScreen = () => {
     }
   }, [hunger, sleep, fun]);
 
+  const handleFeed = () => {
+    setHunger((prev) => Math.min(prev + 10, 100));
+  };
+
+  const handleSleep = () => {
+    setSleep((prev) => Math.min(prev + 10, 100));
+  };
+
+  const handlePlay = () => {
+    router.push('/gameScreen'); // Navega para a tela de minigames
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Hello, Tamagotchi</Text>
@@ -114,13 +129,13 @@ const PetDetailScreen = () => {
       )}
 
       <View style={styles.actionBar}>
-        <TouchableOpacity style={styles.actionButton}>
+        <TouchableOpacity style={styles.actionButton} onPress={handleSleep}>
           <Image source={require('@/assets/images/sleepButton.png')} style={styles.actionIcon} />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.actionButton}>
+        <TouchableOpacity style={styles.actionButton} onPress={handlePlay}>
           <Image source={require('@/assets/images/toPlayButton.png')} style={styles.actionIcon} />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.actionButton}>
+        <TouchableOpacity style={styles.actionButton} onPress={handleFeed}>
           <Image source={require('@/assets/images/toFeedButton.png')} style={styles.actionIcon} />
         </TouchableOpacity>
       </View>
@@ -150,12 +165,13 @@ const styles = StyleSheet.create({
     textShadowRadius: 2,
   },
   statsContainer: {
-    width: '90%',
-    backgroundColor: '#E62E07',
+    width: '100%',
+    backgroundColor: '#575757',
     borderRadius: 10,
     padding: 16,
     marginBottom: 20,
     elevation: 5,
+    opacity: 0.8,
   },
   statRow: {
     flexDirection: 'row',
