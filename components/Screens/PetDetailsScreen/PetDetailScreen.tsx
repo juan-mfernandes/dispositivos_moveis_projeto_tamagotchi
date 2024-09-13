@@ -4,6 +4,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ProgressBar from './ProgressBar';
 import { useRouter } from 'expo-router'; // Usando o useRouter para navegação
+import { useSQLiteContext } from 'expo-sqlite';
+import { Tamagotchi } from '@/models/Tamagotchi';
+import { loadDatabaseTamagotchi } from '@/dataBase/db.operations';
 
 const petData: Record<string, any> = {
   '1': require('@/assets/images/rabbitTamagotchi.png'),
@@ -30,28 +33,41 @@ const getStatusColor = (status: string) => {
       return '#FFFFFF';
   }
 };
-
-
+ 
 const PetDetailScreen = () => {
+  const db = useSQLiteContext();
+  const router = useRouter();
   const [selectedPet, setSelectedPet] = useState<string | null>(null);
-  const [hunger, setHunger] = useState(100);
-  const [sleep, setSleep] = useState(100);
-  const [fun, setFun] = useState(100);
-  const [status, setStatus] = useState('GOOD');
-  const router = useRouter(); // Para navegação
+  const [hunger, setHunger] = useState<number>(100);
+  const [sleep, setSleep] = useState<number>(100);
+  const [fun, setFun] = useState<number>(100);
+  const [status, setStatus] = useState<string>('GOOD');
+  const [ tamagotchi, setTamagotchi ] = useState<Tamagotchi>()
+
+  const loadData = async () => {
+      try {
+        const data = await loadDatabaseTamagotchi()
+        if(data){
+          setTamagotchi(data)
+        }
+      }catch(err) {
+        throw err
+      }
+  }
 
   useEffect(() => {
     const loadSelectedPet = async () => {
       try {
         const petId = await AsyncStorage.getItem('@selectedPet');
         if (petId) {
-          setSelectedPet(petId);
+          setSelectedPet(petId)
         }
       } catch (error) {
         console.log('Erro ao carregar o pet:', error);
       }
     };
-    loadSelectedPet();
+    loadSelectedPet()
+    loadData()
   }, []);
 
   useEffect(() => {
@@ -59,7 +75,7 @@ const PetDetailScreen = () => {
       setHunger((prev) => Math.max(prev - 1, 0));
       setSleep((prev) => Math.max(prev - 1, 0));
       setFun((prev) => Math.max(prev - 1, 0));
-    }, 1000);
+    }, 10000);
 
     return () => clearInterval(interval);
   }, []);
@@ -98,7 +114,7 @@ const PetDetailScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Hello, Tamagotchi</Text>
+      <Text style={styles.title}>Hello,  </Text>
 
       <View style={styles.statsContainer}>
         <View style={styles.statRow}>

@@ -6,7 +6,7 @@ const MinigamesScreen = () => {
     const router = useRouter();
 
     const handleTicTacToe = () => {
-        router.push('/gameScreen1');
+        router.push("/gameScreen1");
     };
 
     const handleFlyerEars = () => {

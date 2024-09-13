@@ -1,48 +1,50 @@
 import React, { useState } from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
+import { Text, Image, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Tamagotchi } from '@/models/Tamagotchi';
 
-interface Pet {
-    id: string;
-    image: any;
-}
+const rabbitImage: string = require('@/assets/images/rabbitTamagotchi.png')
+const mouseImage = require('@/assets/images/mouseTamagotchi.png')
+const monkeyImage = require('@/assets/images/monkeyTamagotchi.png')
+const catImage = require('@/assets/images/catTamagochi.png')
 
-const petData: Pet[] = [
-    { id: '1', image: require('@/assets/images/rabbitTamagotchi.png') },
-    { id: '2', image: require('@/assets/images/mouseTamagotchi.png') },
-    { id: '3', image: require('@/assets/images/monkeyTamagotchi.png') },
-    { id: '4', image: require('@/assets/images/catTamagochi.png') },
-];
+const tamagotchiData = [
+    { id: 1, image: rabbitImage },
+    { id: 2, image: mouseImage },
+    { id: 3, image: monkeyImage },
+    { id: 4, image: catImage },
+]
 
-// Função para salvar o ID do Tamagotchi selecionado
-const saveSelectedPet = async (id: string) => {
+const saveSelectedPet = async (id: number) => {
+    const idToString = id.toString()
     try {
-        await AsyncStorage.setItem('@selectedPet', id);
+        await AsyncStorage.setItem('@selectedPet', idToString);
+        console.log(id)
     } catch (error) {
         console.log("Erro ao salvar o pet:", error);
     }
 };
 
 const PetListScreen = () => {
-    const [selectedPet, setSelectedPet] = useState<string | null>(null);
+    const [selectedPet, setSelectedPet] = useState<number | null>(null);
     const router = useRouter();
 
-    const handleSelectPet = (id: string) => {
+    const handleSelectPet = (id: number) => {
         setSelectedPet(id);
-    };
+    }
 
     const handleConfirmSelection = async () => {
         if (selectedPet) {
-            await saveSelectedPet(selectedPet); // Salva o ID do pet selecionado
+            await saveSelectedPet(selectedPet);
             router.push('/registerScreen');
         } else {
             alert('Please select a Tamagotchi');
         }
-    };
+    }
 
-    const renderItem = ({ item }: { item: Pet }) => {
+    const renderItem = ({ item }: { item: any }) => {
         const isSelected = selectedPet === item.id;
         return (
             <TouchableOpacity
@@ -62,9 +64,9 @@ const PetListScreen = () => {
             <Text style={styles.title}>Choose your Tamagotchi</Text>
 
             <FlatList
-                data={petData}
+                data={tamagotchiData}
                 renderItem={renderItem}
-                keyExtractor={item => item.id}
+                keyExtractor={item => item.id.toString()}
                 numColumns={2}
                 columnWrapperStyle={styles.row}
                 contentContainerStyle={styles.listContainer}

@@ -6,8 +6,9 @@ import { useEffect } from 'react';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { SQLiteProvider } from 'expo-sqlite';
+import { initDatabase } from '@/dataBase/db.operations';
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
@@ -28,18 +29,19 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="petDetailsScreen" options={{ headerShown: false }} />
-        <Stack.Screen name="gameScreen" options={{ headerShown: false }} />
-        <Stack.Screen name="gameScreen1" options={{ headerShown: false }} />
-        <Stack.Screen name="gameScreen2" options={{ headerShown: false }} />
-        <Stack.Screen name="chooseScreen" options={{ headerShown: false }} />
-        <Stack.Screen name="registerScreen" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-    </ThemeProvider>
+    <SQLiteProvider databaseName='tamagotchi.db' onInit={initDatabase}>
+      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+        <Stack>
+          <Stack.Screen name="index" options={{ headerShown: false }} />
+          <Stack.Screen name="petDetailsScreen" options={{ headerShown: false }} />
+          <Stack.Screen name="gameScreen" options={{ headerShown: false }} />
+          <Stack.Screen name="gameScreen1" options={{ headerShown: false }} />
+          <Stack.Screen name="gameScreen2" options={{ headerShown: false }} />
+          <Stack.Screen name="chooseScreen" options={{ headerShown: false }} />
+          <Stack.Screen name="registerScreen" options={{ headerShown: false }} />
+        </Stack>
+      </ThemeProvider>
+    </SQLiteProvider>
   );
   
 }
