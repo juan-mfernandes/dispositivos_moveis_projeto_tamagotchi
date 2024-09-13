@@ -1,42 +1,48 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 
 const TicTacToe = () => {
-  const [board, setBoard] = useState(Array(9).fill(null));
+  const [board, setBoard] = useState<Array<string | null>>(Array(9).fill(null));
   const [xIsNext, setXIsNext] = useState(true);
+  const [winner, setWinner] = useState<string | null>(null);
 
+  // Função para lidar com a jogada
   const handlePress = (index: number) => {
-    if (board[index] || calculateWinner(board)) return;
+    // Impede que a jogada aconteça se já houver vencedor ou se a célula estiver preenchida
+    if (board[index] || winner) return;
 
-    const newBoard = board.slice();
+    const newBoard = [...board];
     newBoard[index] = xIsNext ? 'X' : 'O';
     setBoard(newBoard);
     setXIsNext(!xIsNext);
-
-    if (!newBoard.includes(null) && !calculateWinner(newBoard)) {
-      Alert.alert('Empate', 'O jogo terminou em empate!');
-    }
   };
 
+  // Função para verificar se há vencedor ou empate
+  useEffect(() => {
+    const winner = calculateWinner(board);
+    if (winner) {
+      setWinner(winner);
+      Alert.alert('Game Over', `The winner is: ${winner}`);
+    } else if (!board.includes(null)) {
+      Alert.alert('Draw', 'The game ended in a draw!');
+    }
+  }, [board]);
+
+  // Função para renderizar um quadrado
   const renderSquare = (index: number) => (
-    <TouchableOpacity style={styles.square} onPress={() => handlePress(index)}>
+    <TouchableOpacity key={index} style={styles.square} onPress={() => handlePress(index)}>
       <Text style={styles.squareText}>{board[index]}</Text>
     </TouchableOpacity>
   );
 
-  const winner = calculateWinner(board);
-  let status;
-  if (winner) {
-    status = `Vencedor: ${winner}`;
-    Alert.alert('Fim de jogo', `O vencedor é: ${winner}`);
-  } else {
-    status = `Próximo jogador: ${xIsNext ? 'X' : 'O'}`;
-  }
-
+  // Função para reiniciar o jogo
   const resetGame = () => {
     setBoard(Array(9).fill(null));
     setXIsNext(true);
+    setWinner(null);
   };
+
+  const status = winner ? `Winner: ${winner}` : `Next player: ${xIsNext ? 'X' : 'O'}`;
 
   return (
     <View style={styles.container}>
@@ -45,14 +51,14 @@ const TicTacToe = () => {
         {[...Array(9)].map((_, index) => renderSquare(index))}
       </View>
       <TouchableOpacity style={styles.resetButton} onPress={resetGame}>
-        <Text style={styles.resetText}>Reiniciar</Text>
+        <Text style={styles.resetText}>Reset</Text>
       </TouchableOpacity>
     </View>
   );
 };
 
 // Função para verificar o vencedor
-const calculateWinner = (squares: any[]) => {
+const calculateWinner = (squares: Array<string | null>) => {
   const lines = [
     [0, 1, 2],
     [3, 4, 5],

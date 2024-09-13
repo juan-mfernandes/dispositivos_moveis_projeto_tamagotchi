@@ -5,7 +5,7 @@ import { useRouter } from 'expo-router';
 import { useFonts } from 'expo-font';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Tipando o objeto petData corretamente
+
 const petData: Record<string, any> = {
   '1': require('@/assets/images/rabbitTamagotchi.png'),
   '2': require('@/assets/images/mouseTamagotchi.png'),

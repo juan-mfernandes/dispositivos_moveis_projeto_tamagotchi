@@ -31,7 +31,6 @@ const getStatusColor = (status: string) => {
   }
 };
 
-
 const PetDetailScreen = () => {
   const [selectedPet, setSelectedPet] = useState<string | null>(null);
   const [hunger, setHunger] = useState(100);
@@ -40,12 +39,38 @@ const PetDetailScreen = () => {
   const [status, setStatus] = useState('GOOD');
   const router = useRouter(); // Para navegação
 
+  // Função para salvar o estado atual no AsyncStorage
+  const savePetState = async () => {
+    try {
+      const petState = JSON.stringify({ hunger, sleep, fun });
+      await AsyncStorage.setItem('@petState', petState);
+    } catch (error) {
+      console.log('Erro ao salvar estado do pet:', error);
+    }
+  };
+
+  // Função para carregar o estado salvo do AsyncStorage
+  const loadPetState = async () => {
+    try {
+      const savedState = await AsyncStorage.getItem('@petState');
+      if (savedState) {
+        const { hunger: savedHunger, sleep: savedSleep, fun: savedFun } = JSON.parse(savedState);
+        setHunger(savedHunger);
+        setSleep(savedSleep);
+        setFun(savedFun);
+      }
+    } catch (error) {
+      console.log('Erro ao carregar estado do pet:', error);
+    }
+  };
+
   useEffect(() => {
     const loadSelectedPet = async () => {
       try {
         const petId = await AsyncStorage.getItem('@selectedPet');
         if (petId) {
           setSelectedPet(petId);
+          loadPetState(); // Carrega o estado ao selecionar o pet
         }
       } catch (error) {
         console.log('Erro ao carregar o pet:', error);
@@ -54,6 +79,7 @@ const PetDetailScreen = () => {
     loadSelectedPet();
   }, []);
 
+  // Desconta fome, sono e diversão a cada segundo
   useEffect(() => {
     const interval = setInterval(() => {
       setHunger((prev) => Math.max(prev - 1, 0));
@@ -61,9 +87,13 @@ const PetDetailScreen = () => {
       setFun((prev) => Math.max(prev - 1, 0));
     }, 1000);
 
-    return () => clearInterval(interval);
-  }, []);
+    // Salva o estado a cada intervalo
+    savePetState();
 
+    return () => clearInterval(interval);
+  }, [hunger, sleep, fun]);
+
+  // Atualiza o status do pet conforme os atributos
   useEffect(() => {
     const total = hunger + sleep + fun;
 
@@ -84,15 +114,19 @@ const PetDetailScreen = () => {
     }
   }, [hunger, sleep, fun]);
 
+  // Alimentar o bichinho
   const handleFeed = () => {
     setHunger((prev) => Math.min(prev + 10, 100));
   };
 
+  // Colocar o bichinho para dormir
   const handleSleep = () => {
     setSleep((prev) => Math.min(prev + 10, 100));
   };
 
+  // Jogar minigame e aumentar diversão
   const handlePlay = () => {
+    setFun((prev) => Math.min(prev + 10, 100)); // Atualiza a diversão
     router.push('/gameScreen'); // Navega para a tela de minigames
   };
 
@@ -193,8 +227,8 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
   petImage: {
-    width: 200,
-    height: 200,
+    width: 300,
+    height: 400,
     resizeMode: 'contain',
     marginBottom: 50,
   },
