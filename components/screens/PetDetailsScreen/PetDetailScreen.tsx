@@ -337,8 +337,8 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
   petImage: {
-    width: 200,
-    height: 200,
+    width: 300,
+    height: 400,
     resizeMode: 'contain',
     marginBottom: 50,
   },
@@ -402,6 +402,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Minecraft',
     color: '#FFF',
   },
-});
+})
 
 export default PetDetailScreen;
