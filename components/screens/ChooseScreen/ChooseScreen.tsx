@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Text, Image, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
+import { Text, Image, StyleSheet, TouchableOpacity, FlatList, View, Alert, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFonts } from 'expo-font';
 
 const rabbitImage: string = require('@/assets/images/staticImgs/rabbitTamagotchi.png')
 const mouseImage = require('@/assets/images/staticImgs/mouseTamagotchi.png')
@@ -27,19 +28,27 @@ const saveSelectedPet = async (id: number) => {
 };
 
 const PetListScreen = () => {
-    const [selectedPet, setSelectedPet] = useState<number | null>(null)
-    const router = useRouter()
+    const [selectedPet, setSelectedPet] = useState<number | null>(null);
+    const router = useRouter();
+    
+    const [fontsLoaded] = useFonts({
+        'Minecraft': require('@/assets/fonts/Minecraft.ttf'),
+    });
+
+    if (!fontsLoaded) {
+        return <View><Text>Loading...</Text></View>; 
+    }
 
     const handleSelectPet = (id: number) => {
-        setSelectedPet(id)
-    }
+        setSelectedPet(id); // Define o pet selecionado
+    };
 
     const handleConfirmSelection = async () => {
         if (selectedPet) {
             await saveSelectedPet(selectedPet)
             router.push('/registerScreen')
         } else {
-            alert('Please select a Tamagotchi')
+            Alert.alert('Attention', 'Please select a Tamagotchi before confirming.');
         }
     }
 
@@ -88,17 +97,17 @@ const styles = StyleSheet.create({
     },
     title: {
         fontFamily: 'Minecraft',
-        fontSize: 32,
+        fontSize: 35,
         color: '#FFFFFF',
-        marginBottom: 70,
+        marginBottom: 40,
         textAlign: 'center',
-        paddingHorizontal: 12,
+        paddingHorizontal: 20,
         backgroundColor: '#E62E07',
-        borderRadius: 5,
-        elevation: 5,
+        borderRadius: 8,
+        elevation: 6,
         textShadowColor: '#000000',
         textShadowOffset: { width: 2, height: 2 },
-        textShadowRadius: 2,
+        textShadowRadius: 3,
     },
     listContainer: {
         flexGrow: 1,
@@ -106,36 +115,55 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     row: {
-        justifyContent: 'space-evenly',
-        marginBottom: 30,
+        justifyContent: 'space-between',
+        width: '100%',
+        paddingHorizontal: 16,
+        marginBottom: 20,
     },
     petContainer: {
         alignItems: 'center',
         justifyContent: 'center',
-        marginHorizontal: 20,
+        width: Dimensions.get('window').width * 0.4,
+        height: Dimensions.get('window').width * 0.4,
+        marginBottom: 20,
+        padding: 10,
+        borderRadius: 8,
+        backgroundColor: '#E67C07',
+        shadowColor: '#000',
+        shadowOffset: { width: 2, height: 2 },
+        shadowOpacity: 0.6,
+        shadowRadius: 3,
+        elevation: 5,
     },
     selectedPet: {
-        borderColor: '#FFD700',
-        borderWidth: 3,
-        borderRadius: 5,
+        
+       backgroundColor:'#9A5100',
     },
     petImage: {
-        width: 140,
-        height: 180,
+        width: '100%',
+        height: '100%',
         resizeMode: 'contain',
     },
     confirmButton: {
         backgroundColor: '#E62E07',
-        padding: 20,
-        borderRadius: 5,
+        paddingVertical: 15,
+        paddingHorizontal: 25,
+        borderRadius: 8,
         alignItems: 'center',
         width: '85%',
         marginBottom: 30,
+        shadowColor: '#000',
+        shadowOffset: { width: 2, height: 2 },
+        shadowOpacity: 0.8,
+        shadowRadius: 3,
     },
     confirmButtonText: {
         color: '#FFFFFF',
         fontFamily: 'Minecraft',
         fontSize: 24,
+        textShadowColor: '#000',
+        textShadowOffset: { width: 1, height: 1 },
+        textShadowRadius: 1,
     },
 });
 
