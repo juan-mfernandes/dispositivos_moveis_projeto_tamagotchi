@@ -5,9 +5,9 @@ import { useRouter } from "expo-router";
 const MinigamesScreen = () => {
   const router = useRouter();
 
-  const handleTicTacToe = () => {
-    router.push("/gameScreen1");
-  };
+    const handleTicTacToe = () => {
+        router.push("/gameScreen1");
+    };
 
   const handleFlyerEars = () => {
     router.push("/gameScreen2");

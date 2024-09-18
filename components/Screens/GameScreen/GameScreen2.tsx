@@ -1,70 +1,121 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Dimensions, Alert } from 'react-native';
 import { useFonts } from 'expo-font';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Gyroscope } from 'expo-sensors';
 
 const { width, height } = Dimensions.get('window');
-const ballRadius = 30;
+const BALL_RADIUS = 20;
+const OBSTACLE_SIZE = 40;
+const OBSTACLE_SPEED = 10;
+const INITIAL_OBSTACLE_INTERVAL = 200;
 
-const BalanceGame: React.FC = () => {
+const DodgeGame: React.FC = () => {
   const [gyroscopeData, setGyroscopeData] = useState({ x: 0, y: 0, z: 0 });
-  const [ballPosition, setBallPosition] = useState({ x: width / 2 - ballRadius, y: height / 2 - ballRadius });
+  const [ballPosition, setBallPosition] = useState({ x: width / 2 - BALL_RADIUS, y: height - 100 });
   const [subscription, setSubscription] = useState<any>(null);
+  const [obstacles, setObstacles] = useState<Array<{ id: number; x: number; y: number }>>([]);
+  const obstacleId = useRef(0);
+  const obstacleInterval = useRef<NodeJS.Timeout | null>(null);
 
   const [fontsLoaded] = useFonts({
     'Minecraftia': require('../../../assets/fonts/Minecraft.ttf'),
   });
 
   useEffect(() => {
-    if (!fontsLoaded) return; // Espera a fonte carregar
-    subscribe();
-    return () => unsubscribe(); // Desinscreve-se do giroscópio ao desmontar
+    if (!fontsLoaded) return;
+    subscribeGyroscope();
+    startObstacleGeneration();
+    return () => {
+      unsubscribeGyroscope();
+      stopObstacleGeneration();
+    };
   }, [fontsLoaded]);
-
-  const subscribe = () => {
-    setSubscription(
-      Gyroscope.addListener((data) => {
-        setGyroscopeData(data);
-      })
-    );
-    Gyroscope.setUpdateInterval(16); // Atualização a cada ~60fps
-  };
-
-  const unsubscribe = () => {
-    subscription && subscription.remove();
-    setSubscription(null);
-  };
 
   useEffect(() => {
     const { x, y } = gyroscopeData;
-
     const ballSpeed = 5;
 
     setBallPosition((prevPosition) => {
-      let newX = prevPosition.x - x * ballSpeed;
-      let newY = prevPosition.y + y * ballSpeed;
+      let newX = prevPosition.x + y * ballSpeed; 
+      let newY = prevPosition.y + x * ballSpeed; 
 
+      // Limitar a bola para não sair da tela
       if (newX < 0) newX = 0;
-      if (newX > width - ballRadius * 2) newX = width - ballRadius * 2;
+      if (newX > width - BALL_RADIUS * 2) newX = width - BALL_RADIUS * 2;
       if (newY < 0) newY = 0;
-      if (newY > height - ballRadius * 2) newY = height - ballRadius * 2;
-
-      if (newX === 0 || newX === width - ballRadius * 2 || newY === 0 || newY === height - ballRadius * 2) {
-        Alert.alert('Game Over', 'You lost your balance!');
-        resetGame();
-      }
+      if (newY > height - BALL_RADIUS * 2) newY = height - BALL_RADIUS * 2;
 
       return { x: newX, y: newY };
     });
   }, [gyroscopeData]);
 
+  useEffect(() => {
+    // Atualizar a posição dos obstáculos
+    const interval = setInterval(() => {
+      setObstacles((prevObstacles) =>
+        prevObstacles
+          .map((obstacle) => ({ ...obstacle, y: obstacle.y + OBSTACLE_SPEED }))
+          .filter((obstacle) => obstacle.y < height)
+      );
+    }, 16); // ~60fps
+
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    // Verificar colisões
+    obstacles.forEach((obstacle) => {
+      if (
+        ballPosition.x < obstacle.x + OBSTACLE_SIZE &&
+        ballPosition.x + BALL_RADIUS * 2 > obstacle.x &&
+        ballPosition.y < obstacle.y + OBSTACLE_SIZE &&
+        ballPosition.y + BALL_RADIUS * 2 > obstacle.y
+      ) {
+        Alert.alert('Game Over', 'Você colidiu com um obstáculo!');
+        resetGame();
+      }
+    });
+  }, [obstacles, ballPosition]);
+
+  const subscribeGyroscope = () => {
+    const sub = Gyroscope.addListener((data) => {
+      setGyroscopeData(data);
+    });
+    Gyroscope.setUpdateInterval(16); // ~60fps
+    setSubscription(sub);
+  };
+
+  const unsubscribeGyroscope = () => {
+    subscription && subscription.remove();
+    setSubscription(null);
+  };
+
+  const startObstacleGeneration = () => {
+    obstacleInterval.current = setInterval(() => {
+      const newObstacle = {
+        id: obstacleId.current++,
+        x: Math.random() * (width - OBSTACLE_SIZE),
+        y: -OBSTACLE_SIZE,
+      };
+      setObstacles((prev) => [...prev, newObstacle]);
+    }, INITIAL_OBSTACLE_INTERVAL);
+  };
+
+  const stopObstacleGeneration = () => {
+    obstacleInterval.current && clearInterval(obstacleInterval.current);
+  };
+
   const resetGame = () => {
-    setBallPosition({ x: width / 2 - ballRadius, y: height / 2 - ballRadius });
+    setBallPosition({ x: width / 2 - BALL_RADIUS, y: height - 100 });
+    setObstacles([]);
+    obstacleId.current = 0;
+    stopObstacleGeneration();
+    startObstacleGeneration();
   };
 
   if (!fontsLoaded) {
-    return <View />;
+    return <View style={styles.container} />;
   }
 
   return (
@@ -73,8 +124,21 @@ const BalanceGame: React.FC = () => {
         colors={['#4c669f', '#3b5998', '#192f6a']}
         style={styles.background}
       >
-        <Text style={styles.title}>Game: Balance the Ball</Text>
-        <Text style={styles.instructions}>Keep the ball inside the screen by gently moving your phone!</Text>
+        <Text style={styles.title}>Jogo: Desvie dos Obstáculos</Text>
+        <Text style={styles.instructions}>Use o movimento do seu celular para desviar!</Text>
+        {/* Obstáculos */}
+        {obstacles.map((obstacle) => (
+          <View
+            key={obstacle.id}
+            style={[
+              styles.obstacle,
+              {
+                left: obstacle.x,
+                top: obstacle.y,
+              },
+            ]}
+          />
+        ))}
         <View style={[styles.ball, { left: ballPosition.x, top: ballPosition.y }]} />
       </LinearGradient>
     </View>
@@ -87,27 +151,27 @@ const styles = StyleSheet.create({
   },
   background: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   title: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: 'bold',
     color: 'white',
-    marginBottom: 20,
+    marginTop: 50,
+    marginLeft: 20,
     fontFamily: 'Minecraftia',
   },
   instructions: {
-    fontSize: 18,
+    fontSize: 16,
     color: 'white',
-    textAlign: 'center',
-    marginBottom: 40,
+    marginTop: 10,
+    marginLeft: 20,
+    marginBottom: 20,
     fontFamily: 'Minecraftia',
   },
   ball: {
-    width: ballRadius * 2,
-    height: ballRadius * 2,
-    borderRadius: ballRadius,
+    width: BALL_RADIUS * 2,
+    height: BALL_RADIUS * 2,
+    borderRadius: BALL_RADIUS,
     backgroundColor: '#FF4500',
     position: 'absolute',
     shadowColor: '#000',
@@ -121,6 +185,13 @@ const styles = StyleSheet.create({
     borderWidth: 3,
     borderColor: '#fff',
   },
+  obstacle: {
+    width: OBSTACLE_SIZE,
+    height: OBSTACLE_SIZE,
+    backgroundColor: '#00FF00',
+    position: 'absolute',
+    borderRadius: 5,
+  },
 });
 
-export default BalanceGame;
+export default DodgeGame;

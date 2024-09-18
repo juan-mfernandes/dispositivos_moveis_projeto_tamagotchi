@@ -4,19 +4,46 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useFonts } from 'expo-font';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import { Tamagotchi } from '@/models/Tamagotchi';
+import { createTamagotchi } from '@/dataBase/db.operations';
 
 const petData: Record<string, any> = {
   '1': require('@/assets/images/rabbitTamagotchi.png'),
   '2': require('@/assets/images/mouseTamagotchi.png'),
   '3': require('@/assets/images/monkeyTamagotchi.png'),
-  '4': require('@/assets/images/catTamagochi.png'),
+  '4': require('@/assets/images/catTamagochi.png')
 };
 
 const RegisterScreen = () => {
-  const [name, setName] = useState('');
-  const [selectedPet, setSelectedPet] = useState<string | null>(null);
-  const router = useRouter();
+  const [name, setName] = useState<string>("")
+  const [selectedPet, setSelectedPet] = useState<string>("")
+  const [hunger, setHunger] = useState<number>(100)
+  const [sleepiness, setSleepiness] = useState<number>(100)
+  const [fun, setFun] = useState<number>(100)
+  const [status, setStatus] = useState<string>('GOOD')
+  const [updatedAt, setUpdatedAt] = useState<string>("")
+  const [loading, setLoading] = useState<boolean>(false)
+  const router = useRouter()
+
+  const confirmName = () => {
+    const createdAt: string = new Date().toISOString()
+    setUpdatedAt(createdAt)
+    let data: Tamagotchi = new Tamagotchi(
+      name,
+      hunger,
+      sleepiness,
+      fun,
+      status,
+      updatedAt,
+      createdAt,
+    ) 
+    if (name.trim() === '') {
+      Alert.alert('Error', 'Please enter a name for your Tamagotchi.')
+      return;
+    }
+    createTamagotchi(data)
+    router.push('/petDetailsScreen');
+  }
 
   useEffect(() => {
     const loadSelectedPet = async () => {
@@ -32,20 +59,22 @@ const RegisterScreen = () => {
     loadSelectedPet();
   }, []);
 
-  const confirmName = () => {
-    if (name.trim() === '') {
-      Alert.alert('Error', 'Please enter a name for your Tamagotchi.');
-      return;
-    }
-    router.push('/petDetailsScreen');
-  };
-
   const [fontsLoaded] = useFonts({
     PixelFont: require('@/assets/fonts/Minecraft.ttf'),
   });
 
   if (!fontsLoaded) {
     return null;
+  }
+
+  if(loading) {
+    return <>
+      <View>
+        <Text>
+          Loading
+        </Text>
+      </View>
+    </>
   }
 
   return (

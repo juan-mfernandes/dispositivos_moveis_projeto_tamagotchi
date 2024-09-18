@@ -5,6 +5,7 @@ interface Props {
     onPress?: () => void
     backgroundColor?: string
     color?: string
+    fontSize?: number
     width: number
     height: number
     marginTop: number
