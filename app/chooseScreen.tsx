@@ -1,4 +1,4 @@
-import ChooseScreen from "@/components/Screens/ChooseScreen/ChooseScreen";
+import ChooseScreen from "@/components/screens/ChooseScreen/ChooseScreen";
 
 const chooseScreen = () => {
     return (

@@ -1,4 +1,4 @@
-import RegisterScreen from "@/components/Screens/RegisterScreen/RegisterScreen";
+import RegisterScreen from "@/components/screens/RegisterScreen/RegisterScreen";
 
 const registerScreen = () => {
     return (

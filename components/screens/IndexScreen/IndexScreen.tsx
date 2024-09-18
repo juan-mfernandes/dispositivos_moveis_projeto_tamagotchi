@@ -1,70 +1,56 @@
 import { StyleSheet, Text } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useRouter } from "expo-router"
-import WButton from "./WButton"
-import { useSQLiteContext } from "expo-sqlite"
-import { findTamagotchi, initDatabase } from "@/dataBase/db.operations"
-import { useState } from "react"
+import IndexButton from "../../utils/indexButton"
+import { dbOperations } from "@/dataBase/db.operations"
+import { useEffect, useState } from "react"
 
 const IndexScreen = () => {
     const [ tamagotchiExist, setTamagotchiExist ] = useState<boolean>(false)
-    const db = useSQLiteContext()
     const router = useRouter()
+    const db = dbOperations()
 
     const verifyTamagotchiExists = async () => {
         try{
-            const tamagotchiFound = await findTamagotchi()
+            const tamagotchiFound = await db.loadDatabaseTamagotchi()
             if(tamagotchiFound) {
-                setTamagotchiExist(true)
+               setTamagotchiExist(true)
             }
-            return console.log("tamagotchi not found")
         }catch(err) {
             throw err
         }
     }
 
-    const authExistUser = async ()  => {
-        try {
-            await verifyTamagotchiExists()
-            await initDatabase()
-        }catch(err) {
-            console.log(err)
-        }
+    const handleDelete = () => {
+        db.deleteTamagotchiFromDatabase()    
+    }
+
+    const authExistUser = ()  => {
         if(tamagotchiExist){
             console.log("Tamagotchi exists")
-            router.push("/petDetailsScreen")
+            return router.replace("/petDetailsScreen")
         }  
-        console.log("tabela criada")
+        console.log("authenticated")
         router.push("/chooseScreen")
     }
 
-    async function deleteData(){
-        try {
-            await db.runAsync(`DELETE FROM Tamagotchi`)
-            const response = await db.execAsync(`DROP TABLE Tamagotchi`)
-            console.log("deubom", response)
-        }catch(err) {
-            console.log(err)
-        }   
-    }
-
-    const handleDelete = () => {
-        deleteData()
-    }
+    useEffect(() => {
+        verifyTamagotchiExists()
+    },[] )
 
     return (
         <SafeAreaView style={styles.container}>
             <Text style={styles.title}>
                 Tamagotchi
             </Text>
-            <WButton 
+            <IndexButton 
             title="Play"
             width={120}
             height={50}
             marginTop={200}
             onPress={authExistUser}
             />
-            <WButton
+            <IndexButton
             fontSize={30}
             title="Delete"
             width={150}

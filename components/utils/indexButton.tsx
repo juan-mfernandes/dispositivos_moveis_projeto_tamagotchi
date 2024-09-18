@@ -11,7 +11,7 @@ interface Props {
     marginTop: number
 }
 
-const WButton = (props: Props) => {
+const IndexButton = (props: Props) => {
     const {title, backgroundColor, color, width, height, marginTop, onPress} = props
 
     return (
@@ -35,4 +35,4 @@ const styles = StyleSheet.create({
     }
 })
 
-export default WButton
+export default IndexButton

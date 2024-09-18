@@ -4,78 +4,59 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { useFonts } from 'expo-font';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Tamagotchi } from '@/models/Tamagotchi';
-import { createTamagotchi } from '@/dataBase/db.operations';
+import { dbOperations } from '@/dataBase/db.operations';
 
 const petData: Record<string, any> = {
-  '1': require('@/assets/images/rabbitTamagotchi.png'),
-  '2': require('@/assets/images/mouseTamagotchi.png'),
-  '3': require('@/assets/images/monkeyTamagotchi.png'),
-  '4': require('@/assets/images/catTamagochi.png')
+  '1': require('@/assets/images/staticImgs/rabbitTamagotchi.png'),
+  '2': require('@/assets/images/staticImgs/mouseTamagotchi.png'),
+  '3': require('@/assets/images/staticImgs/monkeyTamagotchi.png'),
+  '4': require('@/assets/images/staticImgs/catTamagochi.png')
 };
 
 const RegisterScreen = () => {
   const [name, setName] = useState<string>("")
   const [selectedPet, setSelectedPet] = useState<string>("")
-  const [hunger, setHunger] = useState<number>(100)
-  const [sleepiness, setSleepiness] = useState<number>(100)
-  const [fun, setFun] = useState<number>(100)
-  const [status, setStatus] = useState<string>('GOOD')
-  const [updatedAt, setUpdatedAt] = useState<string>("")
-  const [loading, setLoading] = useState<boolean>(false)
   const router = useRouter()
+  const db = dbOperations()
 
-  const confirmName = () => {
-    const createdAt: string = new Date().toISOString()
-    setUpdatedAt(createdAt)
-    let data: Tamagotchi = new Tamagotchi(
-      name,
-      hunger,
-      sleepiness,
-      fun,
-      status,
-      updatedAt,
-      createdAt,
-    ) 
-    if (name.trim() === '') {
-      Alert.alert('Error', 'Please enter a name for your Tamagotchi.')
-      return;
+  const confirmName = async () => {
+    try {
+      if (name === "") {
+        Alert.alert('Error', 'Please enter a name for your Tamagotchi.')
+        return
+      }
+      const data = await db.createTamagotchi({
+        name: name
+      })
+    }catch (err) {
+      throw err
+    } finally {
+      router.push('/petDetailsScreen')
     }
-    createTamagotchi(data)
-    router.push('/petDetailsScreen');
   }
 
   useEffect(() => {
     const loadSelectedPet = async () => {
       try {
-        const petId = await AsyncStorage.getItem('@selectedPet');
+        const petId = await AsyncStorage.getItem('@selectedPet')
         if (petId) {
-          setSelectedPet(petId);
+          setSelectedPet(petId)
         }
       } catch (error) {
-        console.log('Erro ao carregar o pet:', error);
+        console.log('Error to load pet:', error)
       }
     };
     loadSelectedPet();
-  }, []);
+  }, [])
 
   const [fontsLoaded] = useFonts({
     PixelFont: require('@/assets/fonts/Minecraft.ttf'),
-  });
+  })
 
   if (!fontsLoaded) {
-    return null;
+    return null
   }
 
-  if(loading) {
-    return <>
-      <View>
-        <Text>
-          Loading
-        </Text>
-      </View>
-    </>
-  }
 
   return (
     <SafeAreaView style={styles.container}>

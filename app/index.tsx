@@ -1,4 +1,4 @@
-import IndexScreen from "../components/Screens/IndexScreen/IndexScreen"
+import IndexScreen from "../components/screens/IndexScreen/IndexScreen"
 
 const Index = () => {
     return (

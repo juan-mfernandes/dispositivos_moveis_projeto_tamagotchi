@@ -1,4 +1,4 @@
-import GameScreen2 from "../components/Screens/GameScreen/GameScreen2";
+import GameScreen2 from "../components/screens/GameScreen/GameScreen2";
 
 const gameScreen2 = () => {
     return (

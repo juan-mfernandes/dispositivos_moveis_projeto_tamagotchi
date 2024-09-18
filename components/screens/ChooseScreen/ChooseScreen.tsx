@@ -3,12 +3,11 @@ import { Text, Image, StyleSheet, TouchableOpacity, FlatList } from 'react-nativ
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Tamagotchi } from '@/models/Tamagotchi';
 
-const rabbitImage: string = require('@/assets/images/rabbitTamagotchi.png')
-const mouseImage = require('@/assets/images/mouseTamagotchi.png')
-const monkeyImage = require('@/assets/images/monkeyTamagotchi.png')
-const catImage = require('@/assets/images/catTamagochi.png')
+const rabbitImage: string = require('@/assets/images/staticImgs/rabbitTamagotchi.png')
+const mouseImage = require('@/assets/images/staticImgs/mouseTamagotchi.png')
+const monkeyImage = require('@/assets/images/staticImgs/monkeyTamagotchi.png')
+const catImage = require('@/assets/images/staticImgs/catTamagochi.png')
 
 const tamagotchiData = [
     { id: 1, image: rabbitImage },
@@ -20,32 +19,32 @@ const tamagotchiData = [
 const saveSelectedPet = async (id: number) => {
     const idToString = id.toString()
     try {
-        await AsyncStorage.setItem('@selectedPet', idToString);
+        await AsyncStorage.setItem('@selectedPet', idToString)
         console.log(id)
     } catch (error) {
-        console.log("Erro ao salvar o pet:", error);
+        console.log("save pet error:", error)
     }
 };
 
 const PetListScreen = () => {
-    const [selectedPet, setSelectedPet] = useState<number | null>(null);
-    const router = useRouter();
+    const [selectedPet, setSelectedPet] = useState<number | null>(null)
+    const router = useRouter()
 
     const handleSelectPet = (id: number) => {
-        setSelectedPet(id);
+        setSelectedPet(id)
     }
 
     const handleConfirmSelection = async () => {
         if (selectedPet) {
-            await saveSelectedPet(selectedPet);
-            router.push('/registerScreen');
+            await saveSelectedPet(selectedPet)
+            router.push('/registerScreen')
         } else {
-            alert('Please select a Tamagotchi');
+            alert('Please select a Tamagotchi')
         }
     }
 
     const renderItem = ({ item }: { item: any }) => {
-        const isSelected = selectedPet === item.id;
+        const isSelected = selectedPet === item.id
         return (
             <TouchableOpacity
                 onPress={() => handleSelectPet(item.id)}
