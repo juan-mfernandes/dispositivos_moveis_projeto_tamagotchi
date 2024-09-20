@@ -45,17 +45,21 @@ const IndexScreen = () => {
             </Text>
             <IndexButton 
             title="Play"
-            width={120}
-            height={50}
+            width={140}
+            color="#FFF"
+            height={70}
             marginTop={200}
+            backgroundColor="#E62E07"
             onPress={authExistUser}
             />
             <IndexButton
             fontSize={30}
             title="Delete"
-            width={150}
-            height={50}
+            width={180}
+            height={70}
+            color="#FFF"
             marginTop={100}
+            backgroundColor="#E62E07"
             onPress={handleDelete}
             />
         </SafeAreaView>
@@ -69,10 +73,10 @@ const styles = StyleSheet.create({
         alignItems: "center",
     },
     title: {
+        borderColor: "#000",
+        borderWidth: 2,
         color: "#FFFF",
         fontFamily: "Minecraft",
-        textShadowColor: "#FFFF",
-        textShadowOffset: {width: 0, height: 0},
         textShadowRadius: 9,
         fontSize: 50,
         marginTop: 100,

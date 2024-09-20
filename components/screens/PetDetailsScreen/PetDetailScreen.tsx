@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, Alert, Modal, BackHandler } from 'react-native';
+import { View, Text, Image, StyleSheet, TouchableOpacity, Modal, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ProgressBar from './ProgressBar';
@@ -33,6 +33,8 @@ const getStatusColor = (status: string) => {
       return '#FFFFFF'
   }
 }
+
+const width = Dimensions.get('window').width; //full width
  
 const PetDetailScreen = () => {
   const router = useRouter()
@@ -46,8 +48,8 @@ const PetDetailScreen = () => {
   const [modalVisible, setModalVisible] = useState<boolean>(false)
   const [modalText, setModalText] = useState<string>("")
   const [statusZero, setStatusZero ] = useState<boolean>(false)
+  
   const db = dbOperations()
-
   const route = useRoute()
 
   // search tamagotchi in the database
@@ -187,32 +189,6 @@ const PetDetailScreen = () => {
     router.replace("/")
   }
 
-  // check back button
-  useEffect(() => {
-    const backAction = () => {
-      if (isFirstScreen()) {
-        BackHandler.exitApp();
-      } 
-      return null
-    }
-
-    const backHandler = BackHandler.addEventListener(
-      'hardwareBackPress',
-      backAction,
-    )
-
-    return () => backHandler.remove();
-  }, [])
-
-  const isFirstScreen = () => {
-    if(route.name === "petDetailsScreen") {
-      saveData()
-      console.log(route.name)
-      return true
-    }
-    return false
-  }
-
   return (
     <SafeAreaView style={styles.container}>
       {loading ? (
@@ -225,7 +201,7 @@ const PetDetailScreen = () => {
       transparent={true} 
       visible={modalVisible} 
       animationType="slide" 
-      onRequestClose={() => {setModalVisible(!modalVisible)}} 
+      onRequestClose={() => {closeModal}} 
       >
         <View style={styles.modalView}>
           <TouchableOpacity style={styles.closemodal} onPress={(closeModal)}>
@@ -295,10 +271,12 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   title: {
+    padding: 8,
     fontFamily: 'Minecraft',
-    fontSize: 24,
+    fontSize: 30,
     color: '#FFFFFF',
-    marginVertical: 20,
+    marginTop: 20,
+    marginBottom: 30,
     textAlign: 'center',
     paddingHorizontal: 10,
     backgroundColor: '#E62E07',
@@ -307,13 +285,15 @@ const styles = StyleSheet.create({
     textShadowColor: '#000000',
     textShadowOffset: { width: 2, height: 2 },
     textShadowRadius: 2,
+    borderColor: "#000",
+    borderWidth: 1.2
   },
   statsContainer: {
     width: '100%',
     backgroundColor: '#575757',
     borderRadius: 10,
     padding: 16,
-    marginBottom: 20,
+    marginBottom: 2,
     elevation: 5,
     opacity: 0.8,
   },
@@ -328,8 +308,8 @@ const styles = StyleSheet.create({
     fontFamily: 'Minecraft',
     fontSize: 18,
     textShadowColor: '#000000',
-    textShadowOffset: { width: 2, height: 2 },
-    textShadowRadius: 2,
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 1,
   },
   percentageText: {
     color: '#FFFFFF',
@@ -346,19 +326,23 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     backgroundColor: '#B91D1D',
-    width: '100%',
-    padding: 16,
-    borderRadius: 5,
+    alignSelf: "stretch",
+    width: width,
+    padding: 20,
     position: 'absolute',
     bottom: 0,
     elevation: 5,
   },
   actionButton: {
+    paddingVertical: 5,
+    paddingHorizontal: 15,
+    backgroundColor: "#575757",
+    borderRadius: 8,
     alignItems: 'center',
   },
   actionIcon: {
-    width: 50,
-    height: 50,
+    width: 60,
+    height: 60,
     resizeMode: 'contain',
   },
   modalView:{

@@ -28,10 +28,9 @@ const RegisterScreen = () => {
       const data = await db.createTamagotchi({
         name: name
       })
+      router.push('/petDetailsScreen')
     }catch (err) {
       throw err
-    } finally {
-      router.push('/petDetailsScreen')
     }
   }
 

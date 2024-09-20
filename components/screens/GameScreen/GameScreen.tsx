@@ -24,7 +24,7 @@ const MinigamesScreen = () => {
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.gameSlot} onPress={handleFlyerEars}>
-        <Text style={styles.gameText}>Balance the Ball</Text>
+        <Text style={styles.gameText}>Flyer Blocks</Text>
       </TouchableOpacity>
     </View>
   );
@@ -39,13 +39,13 @@ const styles = StyleSheet.create({
     paddingVertical: 50, // Espaçamento para ajustar verticalmente
   },
   titleButton: {
-    backgroundColor: "#FF3D00", // Cor de fundo vermelha
+    backgroundColor: "#E62E07", 
     width: "80%",
     paddingVertical: 10,
     marginBottom: 40,
     borderRadius: 5,
     borderWidth: 2,
-    borderColor: "#000", // Borda preta
+    borderColor: "#000", 
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.8,
@@ -54,23 +54,23 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 22,
-    fontFamily: "Minecraft", // Fonte personalizada
-    color: "#FFF", // Texto branco
+    fontFamily: "Minecraft", 
+    color: "#FFF", 
     textAlign: "center",
     textShadowColor: "#000",
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 2,
   },
   gameSlot: {
-    width: "70%", // Largura ajustada para centralizar os blocos
-    height: 100, // Altura dos blocos de jogo
-    backgroundColor: "#D3D3D3", // Fundo cinza claro
+    width: "70%",
+    height: 100,
+    backgroundColor: "#D3D3D3",
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 30, // Espaçamento entre os blocos
-    borderRadius: 5, // Bordas levemente arredondadas
+    marginBottom: 30,
+    borderRadius: 5,
     borderWidth: 2,
-    borderColor: "#000", // Borda preta
+    borderColor: "#000",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.5,
@@ -79,8 +79,8 @@ const styles = StyleSheet.create({
   },
   gameText: {
     fontSize: 18,
-    fontFamily: "Minecraft", // Fonte personalizada
-    color: "#000", // Texto preto
+    fontFamily: "Minecraft",
+    color: "#000",
     textAlign: "center",
   },
 });

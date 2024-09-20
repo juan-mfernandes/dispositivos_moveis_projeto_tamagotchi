@@ -15,23 +15,32 @@ const IndexButton = (props: Props) => {
     const {title, backgroundColor, color, width, height, marginTop, onPress} = props
 
     return (
-        <Pressable style={{...styles.container, width, height, marginTop}} onPress={onPress}>
-            <Text style={styles.text}>{title}</Text>
+        <Pressable style={{...styles.container, width, height, marginTop, backgroundColor}} onPress={onPress}>
+            <Text style={{...styles.text, color}}>{title}</Text>
         </Pressable>
     )
 }
 const styles = StyleSheet.create({
     container: {
-        alignItems: "center",
+        textAlign: "center",
         justifyContent: "center",
+        shadowColor: "#000",
+        shadowOffset: {width: 0, height: 0},
+        borderWidth: 2,
+        borderRadius: 5,
+        borderColor: "#000",
+        elevation: 4,
     },
     text: {
+        paddingTop: 11,
+        paddingLeft: 11,
+        alignSelf: "center",
+        paddingHorizontal: 5,
         fontFamily: "Minecraft",
         fontSize: 50,
-        textShadowColor: "#FFFF",
-        textShadowOffset: {width: 0, height: 0},
-        textShadowRadius: 10,
-        color: "#FFFF"
+        shadowColor: "#000",
+        textShadowOffset: {width: 0, height: -0},
+        elevation: 5
     }
 })
 

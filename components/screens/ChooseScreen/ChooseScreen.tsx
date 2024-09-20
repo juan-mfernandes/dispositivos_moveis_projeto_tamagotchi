@@ -96,10 +96,13 @@ const styles = StyleSheet.create({
         padding: 16,
     },
     title: {
+        borderWidth: 2,
+        borderColor: "#000",
+        paddingVertical: 8,
         fontFamily: 'Minecraft',
         fontSize: 35,
         color: '#FFFFFF',
-        marginBottom: 40,
+        marginBottom: 15,
         textAlign: 'center',
         paddingHorizontal: 20,
         backgroundColor: '#E62E07',
@@ -136,7 +139,6 @@ const styles = StyleSheet.create({
         elevation: 5,
     },
     selectedPet: {
-        
        backgroundColor:'#9A5100',
     },
     petImage: {
@@ -151,6 +153,8 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         alignItems: 'center',
         width: '85%',
+        borderWidth: 2,
+        borderColor: "#000",
         marginBottom: 30,
         shadowColor: '#000',
         shadowOffset: { width: 2, height: 2 },
