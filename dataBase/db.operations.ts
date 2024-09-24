@@ -15,7 +15,7 @@ export type Tamagotchi = {
 export function dbOperations() {
     const db = useSQLiteContext()
 
-    async function createTamagotchi(data: Omit<Tamagotchi, "id">){
+    async function createTamagotchi(data: Omit<Tamagotchi, "id" | "updatedAt" >){
         const statement = await db.prepareAsync(
             ` INSERT INTO Tamagotchi (name, hunger, sleepiness, fun, updatedAt, image)
               VALUES ($name, $hunger, $sleepiness, $fun, $updatedAt, $image);`

@@ -25,8 +25,8 @@ const RegisterScreen = () => {
       const response = await db.createTamagotchi({
         name: name,
         hunger: 100,
-        sleepiness:100,
-        fun:100,
+        sleepiness: 100,
+        fun: 100,
         image: selectedPet,
       });
       console.log(response);

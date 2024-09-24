@@ -7,15 +7,12 @@ import {
   TouchableOpacity,
   Modal,
   Dimensions,
-  ImageBase,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import ProgressBar from "./ProgressBar";
 import { useFocusEffect, useRouter } from "expo-router";
 import { Tamagotchi, dbOperations } from "@/dataBase/db.operations";
-import { AppState } from "react-native";
-import { useRoute } from "@react-navigation/native";
 import { useProgress } from "@/components/Progresso";
 
 const petData: Record<string, any> = {

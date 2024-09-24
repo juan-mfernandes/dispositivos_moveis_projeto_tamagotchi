@@ -1,16 +1,20 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
+import { useProgress } from "@/components/Progresso"
 
 const MinigamesScreen = () => {
   const router = useRouter();
+  const progress = useProgress()
 
   const handleTicTacToe = () => {
-    router.push("/gameScreen1");
+    progress.incrementFun(10)
+    router.push("/Inside/gameScreen1");
   };
 
   const handleFlyerBlocks = () => {
-    router.push("/gameScreen2");
+    progress.incrementFun(10)
+    router.push("/Inside/gameScreen2");
   };
 
   return (
@@ -29,7 +33,7 @@ const MinigamesScreen = () => {
 
       <TouchableOpacity
         style={styles.backButton}
-        onPress={() => router.push("/petDetailsScreen")}
+        onPress={() => router.push("/Inside/petDetailsScreen")}
       >
         <Text style={styles.backText}>Back</Text>
       </TouchableOpacity>

@@ -1,13 +1,11 @@
-import React, { ReactNode, useEffect, useRef, useState } from 'react';
-import { View, StyleSheet, Image, Animated, Modal, TouchableOpacity, Text, FlatList, TextInput } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { View, StyleSheet, Image, Animated, TouchableOpacity, Text } from 'react-native';
 import { ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
-import { NavigationProp } from '@react-navigation/native';
 import { dbOperations } from  '../../../dataBase/db.operations'
 
-import ProgressBar from '../../../components/screens/PetDetailsScreen/ProgressBar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useProgress } from '../../../components/Progresso';
+
 
 type Tamagochi = {
   id: number;
@@ -100,8 +98,6 @@ export default function Welcome() {
                 default:
                   imageSource = null;
               }
-            
-
             return (
               <TouchableOpacity
                 key={item.id}
@@ -259,8 +255,8 @@ const styles = StyleSheet.create({
     color: '#ffff',
     backgroundColor: '#E62E07',
     borderRadius: 5,
-    borderColor: 'white',
-    borderWidth: 2,
+    borderColor: '#000',
+    borderWidth: 1.5,
     padding: 12,
     paddingTop: 20,
   },
@@ -270,8 +266,8 @@ const styles = StyleSheet.create({
     marginTop: 50,
     backgroundColor: '#E62E07',
     borderRadius: 5,
-    borderColor: 'white',
-    borderWidth: 0.5,
+    borderColor: '#000',
+    borderWidth: 1.5,
     padding: 10,
   },
   bttIniciar3: {
