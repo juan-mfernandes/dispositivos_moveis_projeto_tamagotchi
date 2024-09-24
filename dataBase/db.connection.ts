@@ -12,6 +12,7 @@ export async function initDatabase(db: SQLiteDatabase) {
         fun INTEGER NOT NULL,
         createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP);`
+    const query2 = `DROP TABLE Tamagotchi;`
         try{
             await db.execAsync(query)
             console.log("Database initialized!")

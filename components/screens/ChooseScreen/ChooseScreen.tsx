@@ -17,6 +17,7 @@ const tamagotchiData = [
     { id: 4, image: catImage },
 ]
 
+
 const saveSelectedPet = async (id: number) => {
     const idToString = id.toString()
     try {
@@ -70,7 +71,6 @@ const PetListScreen = () => {
     return (
         <SafeAreaView style={styles.container}>
             <Text style={styles.title}>Choose your Tamagotchi</Text>
-
             <FlatList
                 data={tamagotchiData}
                 renderItem={renderItem}
@@ -79,7 +79,6 @@ const PetListScreen = () => {
                 columnWrapperStyle={styles.row}
                 contentContainerStyle={styles.listContainer}
             />
-
             <TouchableOpacity style={styles.confirmButton} onPress={handleConfirmSelection}>
                 <Text style={styles.confirmButtonText}>Confirm selection</Text>
             </TouchableOpacity>

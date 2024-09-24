@@ -99,7 +99,7 @@ const PetDetailScreen = () => {
       setHunger((prev) => Math.max(prev - 1, 0))
       setSleep((prev) => Math.max(prev - 1, 0))
       setFun((prev) => Math.max(prev - 1, 0))
-    }, 1000);
+    }, 100);
 
     return () => clearInterval(interval)
   }, [])
@@ -173,20 +173,24 @@ const PetDetailScreen = () => {
   // add feed progress
   const handleFeed = () => {
     setHunger((prev) => Math.min(prev + 10, 100))
+    saveData()
   }
 
   // add sleep progress
   const handleSleep = () => {
     setSleep((prev) => Math.min(prev + 10, 100))
+    saveData()
   }
 
   const handlePlay = () => {
+    saveData()
     router.push('/gameScreen')
   }
 
   const closeModal = () => {
     setModalVisible(false)
     router.replace("/")
+    db.deleteTamagotchiFromDatabase()
   }
 
   return (

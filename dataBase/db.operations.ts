@@ -1,13 +1,13 @@
 import { useSQLiteContext } from "expo-sqlite"
 
 export type Tamagotchi = {
-    id: number,
-    name: string,
-    status?: number,
-    hunger: number,
-    fun: number,
-    sleepiness: number,
-    updatedAt: Date,
+    id: number
+    name: string
+    status?: number
+    hunger: number
+    fun: number
+    sleepiness: number
+    updatedAt: Date
 }
 
 export function dbOperations() {
@@ -79,6 +79,31 @@ export function dbOperations() {
         } 
     }
 
+    async function deleteTamagotchiById(id: number) {
+        const query = `DELETE from Tamagotchi WHERE id ${id}`
+        try {
+            await db.runAsync(query)
+        } catch (err) {
+            console.log("failed detele tamagotchi", err)
+            throw err
+        }
+    }
+
+    async function getTamagotchiList() {
+        const query = `SELECT * FROM Tamagotchi`
+        try {
+            const response: Tamagotchi[] = await db.getAllAsync(query)
+            return response
+        } catch (err) {
+            console.log("Failed get tamagotchi list: ",err)
+            throw err
+        }
+    }
+
+    function dropDb() {
+        return db.runSync(`DROP TABLE Tamagotchi;`)
+    }
+
     function resetAutoIncrement() {
         const query = `UPDATE sqlite_sequence SET seq = 0 WHERE name = "Tamagotchi";` // the id returns to 1
         db.runSync(query)
@@ -91,7 +116,7 @@ export function dbOperations() {
             resetAutoIncrement()
             console.log("Tamagotchi deleted!")
     }
-    
-    return { createTamagotchi, loadDatabaseTamagotchi, updateTamagotchi, findById, deleteTamagotchiFromDatabase}
+
+    return { createTamagotchi, loadDatabaseTamagotchi, updateTamagotchi, findById, deleteTamagotchiById, getTamagotchiList, deleteTamagotchiFromDatabase, dropDb}
 
 }
