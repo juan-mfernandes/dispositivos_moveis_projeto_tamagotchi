@@ -40,7 +40,7 @@ const PetListScreen = () => {
     }
 
     const handleSelectPet = (id: number) => {
-        setSelectedPet(id); // Define o pet selecionado
+        setSelectedPet(id); 
     };
 
     const handleConfirmSelection = async () => {

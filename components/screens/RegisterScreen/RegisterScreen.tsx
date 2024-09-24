@@ -15,20 +15,36 @@ const petData: Record<string, any> = {
 
 const RegisterScreen = () => {
   const [name, setName] = useState<string>("")
+
   const [selectedPet, setSelectedPet] = useState<string>("")
   const router = useRouter()
   const db = dbOperations()
+
+  async function create() {
+    try {
+      const response = await db.createTamagotchi({
+        name: name,
+        hunger: 100,
+        sleepiness:100,
+        fun:100,
+        image: selectedPet,
+      });
+      console.log(response);
+      router.push('/')
+    } catch (error) {
+      console.log("erroaqui");
+      console.log(error);
+    }
+  }
 
   const confirmName = async () => {
     try {
       if (name === "") {
         Alert.alert('Error', 'Please enter a name for your Tamagotchi.')
         return
+      } else {
+        create()
       }
-      const data = await db.createTamagotchi({
-        name: name
-      })
-      router.push('/petDetailsScreen')
     }catch (err) {
       throw err
     }
@@ -55,6 +71,7 @@ const RegisterScreen = () => {
   if (!fontsLoaded) {
     return null
   }
+
 
 
   return (
@@ -150,3 +167,7 @@ const styles = StyleSheet.create({
 });
 
 export default RegisterScreen;
+function setTamagochis(arg0: (prev: any) => any) {
+  throw new Error('Function not implemented.');
+}
+

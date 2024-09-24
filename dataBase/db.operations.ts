@@ -1,3 +1,4 @@
+import { Image } from 'react-native';
 import { useSQLiteContext } from "expo-sqlite"
 
 export type Tamagotchi = {
@@ -8,15 +9,16 @@ export type Tamagotchi = {
     fun: number,
     sleepiness: number,
     updatedAt: Date,
+    image: string,
 }
 
 export function dbOperations() {
     const db = useSQLiteContext()
 
-    async function createTamagotchi(data: Omit<Tamagotchi, "id" | "updatedAt" | "fun" | "hunger" | "sleepiness">){
+    async function createTamagotchi(data: Omit<Tamagotchi, "id">){
         const statement = await db.prepareAsync(
-            ` INSERT INTO Tamagotchi (name, hunger, sleepiness, fun, updatedAt)
-              VALUES ($name, $hunger, $sleepiness, $fun, $updatedAt);`
+            ` INSERT INTO Tamagotchi (name, hunger, sleepiness, fun, updatedAt, image)
+              VALUES ($name, $hunger, $sleepiness, $fun, $updatedAt, $image);`
         )
         try{
             const result =  await statement.executeAsync({
@@ -24,7 +26,8 @@ export function dbOperations() {
                 $hunger: 100,
                 $sleepiness: 100,
                 $fun: 100,
-                $updatedAt: new Date().toISOString()
+                $updatedAt: new Date().toISOString(),
+                $image: data.image
             })
         }catch(err) {
             console.log(err)
@@ -50,16 +53,16 @@ export function dbOperations() {
         } 
     }
 
-    async function updateTamagotchi(data: Omit<Tamagotchi, "name" | "updatedAt">) {
+    async function updateTamagotchi(id: number, data: Omit<Tamagotchi, "name" | "updatedAt">) {
         const statement = await db.prepareAsync(
-            `UPDATE Tamagotchi SET hunger = $hunger, fun = $fun, sleepiness = $sleepiness WHERE id = $id;`
+            `UPDATE Tamagotchi SET hunger = $hunger, fun = $fun, sleepiness = $sleepiness WHERE id = $id`
         )
         try {
-            const result = await statement.executeAsync({
-                $hunger: data.hunger,
-                $fun: data.fun,
-                $sleepiness: data.sleepiness,
-                $id: data.id
+            await statement.executeAsync({
+                $id: id,
+                $hunger: data.hunger !== undefined ? data.hunger:null,
+                $fun: data.fun !== undefined ? data.fun:null,
+                $sleepiness: data.sleepiness !== undefined ? data.sleepiness:null
             });
         } catch (err) {
             console.log(err)
@@ -85,13 +88,45 @@ export function dbOperations() {
         console.log("Success: Autoincrement deleted!")
     }
 
-    function deleteTamagotchiFromDatabase(){
-        const query = `DELETE from Tamagotchi WHERE id = 1`
+    async function deleteTamagotchiById(id: number) {
+        const statement = await db.prepareAsync(
+            `DELETE FROM Tamagotchi WHERE id = $id`
+        )
+        try {
+            const result = await statement.executeAsync({
+                $id: id
+            });
+            if (result.changes === 0) {
+                console.log(`No Tamagotchi found with id: ${id}`);
+            } else {
+                console.log(`Tamagotchi with id: ${id} deleted!`);
+            }
+        } catch (err) {
+            console.log(err);
+            throw err;
+        } finally {
+            await statement.finalizeAsync();
+        }
+    }
+    async function loadAllTamagotchis() {
+        const query = `SELECT * FROM Tamagotchi;`
+        try {
+            const results = await db.getAllAsync<Tamagotchi>(query);
+            return results;
+        } catch (err) {
+            console.log("Error loading Tamagotchis: ", err);
+            throw err;
+        }
+    }
+    
+
+    function deleteTamagotchi(){
+        const query = `DROP TABLE Tamagotchi`
             db.runSync(query)
             resetAutoIncrement()
             console.log("Tamagotchi deleted!")
     }
     
-    return { createTamagotchi, loadDatabaseTamagotchi, updateTamagotchi, findById, deleteTamagotchiFromDatabase}
+    return { createTamagotchi, loadDatabaseTamagotchi, updateTamagotchi, findById, deleteTamagotchiById, deleteTamagotchi, loadAllTamagotchis}
 
 }

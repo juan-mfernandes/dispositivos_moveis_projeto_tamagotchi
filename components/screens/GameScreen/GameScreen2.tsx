@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Dimensions, Alert } from 'react-native';
 import { useFonts } from 'expo-font';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Gyroscope } from 'expo-sensors';
+import { router, useRouter } from "expo-router";
 
 const { width, height } = Dimensions.get('window');
 const BALL_RADIUS = 20;
@@ -17,6 +18,7 @@ const DodgeGame: React.FC = () => {
   const [obstacles, setObstacles] = useState<Array<{ id: number; x: number; y: number }>>([]);
   const obstacleId = useRef(0);
   const obstacleInterval = useRef<NodeJS.Timeout | null>(null);
+  const [isGameOver, setIsGameOver] = useState(false); 
 
   const [fontsLoaded] = useFonts({
     'Minecraftia': require('../../../assets/fonts/Minecraft.ttf'),
@@ -36,59 +38,71 @@ const DodgeGame: React.FC = () => {
     const { x, y } = gyroscopeData;
     const ballSpeed = 5;
 
-    setBallPosition((prevPosition) => {
-      let newX = prevPosition.x + y * ballSpeed; 
-      let newY = prevPosition.y + x * ballSpeed; 
+    if (!isGameOver) { 
+      setBallPosition((prevPosition) => {
+        let newX = prevPosition.x + y * ballSpeed; 
+        let newY = prevPosition.y + x * ballSpeed; 
 
-      // Limitar a bola para não sair da tela
-      if (newX < 0) newX = 0;
-      if (newX > width - BALL_RADIUS * 2) newX = width - BALL_RADIUS * 2;
-      if (newY < 0) newY = 0;
-      if (newY > height - BALL_RADIUS * 2) newY = height - BALL_RADIUS * 2;
+      
+        if (newX < 0) newX = 0;
+        if (newX > width - BALL_RADIUS * 2) newX = width - BALL_RADIUS * 2;
+        if (newY < 0) newY = 0;
+        if (newY > height - BALL_RADIUS * 2) newY = height - BALL_RADIUS * 2;
 
-      return { x: newX, y: newY };
-    });
-  }, [gyroscopeData]);
+        return { x: newX, y: newY };
+      });
+    }
+  }, [gyroscopeData, isGameOver]);
 
   useEffect(() => {
     // Atualizar a posição dos obstáculos
     const interval = setInterval(() => {
-      setObstacles((prevObstacles) =>
-        prevObstacles
-          .map((obstacle) => ({ ...obstacle, y: obstacle.y + OBSTACLE_SPEED }))
-          .filter((obstacle) => obstacle.y < height)
-      );
-    }, 16); // ~60fps
+      if (!isGameOver) {
+        setObstacles((prevObstacles) =>
+          prevObstacles
+            .map((obstacle) => ({ ...obstacle, y: obstacle.y + OBSTACLE_SPEED }))
+            .filter((obstacle) => obstacle.y < height)
+        );
+      }
+    }, 16); 
 
     return () => clearInterval(interval);
-  }, []);
+  }, [isGameOver]);
 
   useEffect(() => {
     // Verificar colisões
-    obstacles.forEach((obstacle) => {
-      if (
-        ballPosition.x < obstacle.x + OBSTACLE_SIZE &&
-        ballPosition.x + BALL_RADIUS * 2 > obstacle.x &&
-        ballPosition.y < obstacle.y + OBSTACLE_SIZE &&
-        ballPosition.y + BALL_RADIUS * 2 > obstacle.y
-      ) {
-        Alert.alert('Game Over', 'Você colidiu com um obstáculo!');
-        resetGame();
-      }
-    });
-  }, [obstacles, ballPosition]);
+    if (!isGameOver) {
+      obstacles.forEach((obstacle) => {
+        if (
+          ballPosition.x < obstacle.x + OBSTACLE_SIZE &&
+          ballPosition.x + BALL_RADIUS * 2 > obstacle.x &&
+          ballPosition.y < obstacle.y + OBSTACLE_SIZE &&
+          ballPosition.y + BALL_RADIUS * 2 > obstacle.y
+        ) {
+          Alert.alert('Game Over', 'Você colidiu com um obstáculo!', [
+            { text: 'OK', onPress: () => resetGame() },
+            { text: 'Back', onPress: () => router.push('/Inside') }
+          ]);
+          
+          setIsGameOver(true); // Define o estado de jogo como terminado
+        }
+      });
+    }
+  }, [obstacles, ballPosition, isGameOver]);
 
   const subscribeGyroscope = () => {
     const sub = Gyroscope.addListener((data) => {
       setGyroscopeData(data);
     });
-    Gyroscope.setUpdateInterval(16); // ~60fps
+    Gyroscope.setUpdateInterval(16); 
     setSubscription(sub);
   };
 
   const unsubscribeGyroscope = () => {
-    subscription && subscription.remove();
-    setSubscription(null);
+    if (subscription) {
+      subscription.remove();
+      setSubscription(null);
+    }
   };
 
   const startObstacleGeneration = () => {
@@ -103,13 +117,16 @@ const DodgeGame: React.FC = () => {
   };
 
   const stopObstacleGeneration = () => {
-    obstacleInterval.current && clearInterval(obstacleInterval.current);
+    if (obstacleInterval.current) {
+      clearInterval(obstacleInterval.current);
+    }
   };
 
   const resetGame = () => {
     setBallPosition({ x: width / 2 - BALL_RADIUS, y: height - 100 });
     setObstacles([]);
     obstacleId.current = 0;
+    setIsGameOver(false); // Resetar o estado do jogo
     stopObstacleGeneration();
     startObstacleGeneration();
   };

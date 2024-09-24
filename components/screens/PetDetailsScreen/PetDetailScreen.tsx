@@ -1,193 +1,177 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity, Modal, Dimensions } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import ProgressBar from './ProgressBar';
-import { useRouter } from 'expo-router';
-import { Tamagotchi, dbOperations } from '@/dataBase/db.operations';
-import { AppState } from 'react-native';
-import { useRoute } from '@react-navigation/native';
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  Modal,
+  Dimensions,
+  ImageBase,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import ProgressBar from "./ProgressBar";
+import { useFocusEffect, useRouter } from "expo-router";
+import { Tamagotchi, dbOperations } from "@/dataBase/db.operations";
+import { AppState } from "react-native";
+import { useRoute } from "@react-navigation/native";
+import { useProgress } from "@/components/Progresso";
 
 const petData: Record<string, any> = {
-  '1': require('@/assets/images/gifImgs/rabbitTamagotchi.gif'),
-  '2': require('@/assets/images/gifImgs/mouseTamagotchi.gif'),
-  '3': require('@/assets/images/gifImgs/monkeyTamagotchi.gif'),
-  '4': require('@/assets/images/gifImgs/catTamagochi.gif'),
-}
+  "1": require("@/assets/images/gifImgs/rabbitTamagotchi.gif"),
+  "2": require("@/assets/images/gifImgs/mouseTamagotchi.gif"),
+  "3": require("@/assets/images/gifImgs/monkeyTamagotchi.gif"),
+  "4": require("@/assets/images/gifImgs/catTamagochi.gif"),
+};
+const width = Dimensions.get("window").width;
 
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case 'CRITICAL':
-      return '#ff0000'
-    case 'VERY SAD':
-      return '#ff4500'
-    case 'SAD':
-      return '#ff8c00'
-    case 'OK':
-      return '#ffff00'
-    case 'GOOD':
-      return '#32cd32'
-    case 'VERY GOOD':
-      return '#00ff00'
-    default:
-      return '#FFFFFF'
-  }
-}
-
-const width = Dimensions.get('window').width; //full width
- 
 const PetDetailScreen = () => {
-  const router = useRouter()
-  const [selectedPet, setSelectedPet] = useState<string | null>(null)
-  const [tamagotchi, setTamagotchi] = useState<Tamagotchi | null>(null)
-  const [loading, setLoading] = useState<boolean>(false)
-  const [hunger, setHunger] = useState<number>(100)
-  const [sleep, setSleep] = useState<number>(100)
-  const [fun, setFun] = useState<number>(100)
-  const [status, setStatus] = useState<string>('GOOD')
-  const [modalVisible, setModalVisible] = useState<boolean>(false)
-  const [modalText, setModalText] = useState<string>("")
-  const [statusZero, setStatusZero ] = useState<boolean>(false)
-  
-  const db = dbOperations()
-  const route = useRoute()
+  const router = useRouter();
+  const { hunger, sleep, fun, status, setInitialValues } = useProgress();
+  const { incrementFun, incrementHunger, incrementSleep} = useProgress();
+  const [selectedPet, setSelectedPet] = useState<string | null>(null);
+  const [tamagochiId, setTamagochiId] = useState<number | null>(null);
+  const [tamagotchi, setTamagotchi] = useState<Tamagotchi | null>(null);
+  const [tamagotchiImage, setTamagotchiImage] = useState<any>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const [modalText, setModalText] = useState<string>("");
+  const [name, setName] = useState<string>("");
+  const [imageT, setImageT] = useState<string>("");
+  const [statusZero, setStatusZero] = useState<boolean>(false);
+  const [tipo, setTipo] = useState<string>("");
 
-  // search tamagotchi in the database
-  const loadData = async () => {
-    setLoading(true)
+  const db = dbOperations();
+  const getTamagochiId = async () => {
     try {
-      const dataT = await db.findById(1) // will always be 1
-      setTamagotchi(dataT)
-      if (dataT) {
-        setHunger(dataT.hunger)
-        setSleep(dataT.sleepiness)
-        setFun(dataT.fun)
+      const id = await AsyncStorage.getItem("tamagochiId");
+      if (id) {
+        setTamagochiId(Number(id));
       }
-    }catch(err) {
-      throw err
-    } finally {
-      setLoading(false)
+    } catch (error) {
+      console.error("Erro ao ler Tamagotchi ID:", error);
     }
-  }
-
-  useEffect( () => {
-    if(tamagotchi) { 
-      console.log("loaded: ",tamagotchi) 
-    }
-  },[tamagotchi])
-  
-
-  // get tamagotchi img
-  useEffect(() => {
-    const loadSelectedPet = async () => {
-      try {
-        const petId = await AsyncStorage.getItem('@selectedPet')
-        if (petId) {
-          setSelectedPet(petId)
+  };
+  async function TrazerDados() {
+    try {
+      if (tamagochiId) {
+        const data = await db.findById(tamagochiId);
+        if (data) {
+          setName(data.name);
+          setTipo(data.image);
+          setInitialValues({
+            hunger: data.hunger ?? 100,
+            sleep: data.sleepiness ?? 100,
+            fun: data.fun ?? 100,
+          });
         }
-        await loadData()
-      } catch (error) {
-        console.log('load pet error:', error)
       }
+    } catch (error) {
+      console.error("Error fetching Tamagotchi name:", error);
     }
-    loadSelectedPet()
-  }, [])
-
-  // decrement logic
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setHunger((prev) => Math.max(prev - 1, 0))
-      setSleep((prev) => Math.max(prev - 1, 0))
-      setFun((prev) => Math.max(prev - 1, 0))
-    }, 1000);
-
-    return () => clearInterval(interval)
-  }, [])
-
-  useEffect( ()=> {
-    checkStatusZero()
-  }, [statusZero])
-
-  // status control logic
-  useEffect(() => {
-    const total = hunger + sleep + fun
-    if (total === 0) {
-      setStatus('DEAD')
-      setModalText("Your Tamagotchi is DEAD. Restart the game, please")
-      setStatusZero(true)
-      db.deleteTamagotchiFromDatabase()
-    } else if (total <= 50) {
-      setStatus('CRITICAL');
-    } else if (total <= 100) {
-      setStatus('VERY SAD');
-    } else if (total <= 150) {
-      setStatus('SAD');
-    } else if (total <= 200) {
-      setStatus('OK');
-    } else if (total <= 250) {
-      setStatus('GOOD');
-    } else {
-      setStatus('VERY GOOD')
-    }
-  }, [hunger, sleep, fun])
-
-  const checkStatusZero = () => {
-    if(statusZero === true) {
-      setModalVisible(true)
-    }
-    return null
   }
+  useFocusEffect(
+    React.useCallback(() => {
+     getTamagochiId();
+    }, [])
+  );
 
-  // update database with news satates
+  useFocusEffect(
+    React.useCallback(() => {
+      TrazerDados();
+    }, [tamagochiId])
+  );
+
+  const closeModal = () => {
+    setModalVisible(false);
+  };
+
+  const calculateStatus = () => {
+    if (status <= 50) return { text: "DEAD", color: "#ff0000" };
+    if (status <= 100) return { text: "CRITICAL", color: "#ff0000" };
+    if (status <= 150) return { text: "VERY SAD", color: "#ffff00" };
+    if (status <= 200) return { text: "SAD", color: "#ffff00" };
+    if (status <= 250) return { text: "GOOD", color: "#00ff6e" };
+    return { text: "VERY GOOD", color: "#00ff6e" };
+  };
+
+  const { text: statusText, color: statusColor } = calculateStatus();
+
+  const close = () => {
+    setModalVisible(false);
+  };
   const saveData = async () => {
-    if (tamagotchi) {
-      try {
-        await db.updateTamagotchi({
-          ...tamagotchi,
-          hunger,
-          sleepiness: sleep,
-          fun,
-        })
-        console.log('date saved successfully.')
-      } catch (err) {
-        console.error('error saving data: ', err)
+    try {
+      if (tamagochiId !== null) {
+        await db.updateTamagotchi(tamagochiId, {
+          hunger: hunger ?? 100,
+          fun: fun ?? 100,
+          sleepiness: sleep ?? 100,
+          id: tamagochiId,
+          image: tipo,
+        });
+        console.log("Dados salvos com sucesso!");
+        incrementHunger(10)
       }
+    } catch (error) {
+      console.error("Erro ao salvar os dados:", error);
     }
-  }
-
-  // app state control and save data
-  useEffect(() => {
-    const handleAppStateChange = (nextAppState: string) => {
-      if (nextAppState === 'background' || nextAppState === 'inactive') {
-        saveData()
+  };
+  const saveData2 = async () => {
+    try {
+      if (tamagochiId !== null) {
+        await db.updateTamagotchi(tamagochiId, {
+          hunger: hunger ?? 100,
+          fun: fun ?? 100,
+          sleepiness: sleep ?? 100,
+          id: tamagochiId,
+          image: tipo,
+        });
+        console.log("Dados salvos com sucesso!"); 
+        
+        incrementSleep(10)
       }
+    } catch (error) {
+      console.error("Erro ao salvar os dados:", error);
     }
-
-    const subscription = AppState.addEventListener('change', handleAppStateChange)
-
-    return () => {
-      subscription.remove()
-    }
-  }, [hunger, sleep, fun, tamagotchi])
-
-  // add feed progress
+  };
   const handleFeed = () => {
-    setHunger((prev) => Math.min(prev + 10, 100))
+    saveData();
   }
 
-  // add sleep progress
+  
   const handleSleep = () => {
-    setSleep((prev) => Math.min(prev + 10, 100))
+    
+    saveData2();
   }
 
   const handlePlay = () => {
-    router.push('/gameScreen')
+    // bota la dentro incrementFun(10)
+    router.push('/Inside/gameScreen')
+    saveData();
   }
 
-  const closeModal = () => {
-    setModalVisible(false)
-    router.replace("/")
-  }
+
+  useEffect(() => {
+    let imageSource;
+    switch (tipo) {
+      case "1":
+        imageSource = require("../../../assets/images/gifImgs/rabbitTamagotchi.gif");
+        break;
+      case "2":
+        imageSource = require("../../../assets/images/gifImgs/mouseTamagotchi.gif");
+        break;
+      case "3":
+        imageSource = require("../../../assets/images/gifImgs/monkeyTamagotchi.gif");
+        break;
+      case "4":
+        imageSource = require("../../../assets/images/gifImgs/catTamagochi.gif");
+        break;
+      default:
+    }
+    setTamagotchiImage(imageSource);
+  }, [db]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -212,7 +196,7 @@ const PetDetailScreen = () => {
           </Text>
         </View>
       </Modal>
-      <Text style={styles.title}>Hello, {tamagotchi?.name}!</Text>
+      <Text style={styles.title}>Hello, {name}!</Text>
 
       <View style={styles.statsContainer}>
         <View style={styles.statRow}>
@@ -233,15 +217,15 @@ const PetDetailScreen = () => {
         </View>
         <ProgressBar progress={fun / 100} color="#00ff00" />
 
-        <Text style={[styles.statsText, { color: getStatusColor(status) }]}>
-          Status: {status}
+        <Text style={[styles.statsText, { color: statusColor }]}>
+          Status: {statusText}
         </Text>
       </View>
 
-      {selectedPet && petData[selectedPet] ? (
-        <Image source={petData[selectedPet]} style={styles.petImage} />
-      ) : (
+      {selectedPet ? (
         <Text style={styles.statsText}>Pet not found!</Text>
+      ) : (
+        <Image source={tamagotchiImage} style={styles.petImage} />
       )}
 
 
@@ -263,34 +247,35 @@ const PetDetailScreen = () => {
   );
 };
 
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#E67C07',
-    alignItems: 'center',
+    backgroundColor: "#E67C07",
+    alignItems: "center",
     padding: 16,
   },
   title: {
     padding: 8,
-    fontFamily: 'Minecraft',
+    fontFamily: "Minecraft",
     fontSize: 30,
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     marginTop: 20,
     marginBottom: 30,
-    textAlign: 'center',
+    textAlign: "center",
     paddingHorizontal: 10,
-    backgroundColor: '#E62E07',
+    backgroundColor: "#E62E07",
     borderRadius: 5,
     elevation: 5,
-    textShadowColor: '#000000',
+    textShadowColor: "#000000",
     textShadowOffset: { width: 2, height: 2 },
     textShadowRadius: 2,
     borderColor: "#000",
-    borderWidth: 1.2
+    borderWidth: 1.2,
   },
   statsContainer: {
-    width: '100%',
-    backgroundColor: '#575757',
+    width: "100%",
+    backgroundColor: "#575757",
     borderRadius: 10,
     padding: 16,
     marginBottom: 2,
@@ -298,38 +283,38 @@ const styles = StyleSheet.create({
     opacity: 0.8,
   },
   statRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 5,
   },
   statsText: {
-    color: '#FFFFFF',
-    fontFamily: 'Minecraft',
+    color: "#FFFFFF",
+    fontFamily: "Minecraft",
     fontSize: 18,
-    textShadowColor: '#000000',
+    textShadowColor: "#000000",
     textShadowOffset: { width: 1, height: 1 },
     textShadowRadius: 1,
   },
   percentageText: {
-    color: '#FFFFFF',
-    fontFamily: 'Minecraft',
+    color: "#FFFFFF",
+    fontFamily: "Minecraft",
     fontSize: 18,
   },
   petImage: {
     width: 300,
     height: 400,
-    resizeMode: 'contain',
+    resizeMode: "contain",
     marginBottom: 50,
   },
   actionBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    backgroundColor: '#B91D1D',
+    flexDirection: "row",
+    justifyContent: "space-around",
+    backgroundColor: "#B91D1D",
     alignSelf: "stretch",
     width: width,
     padding: 20,
-    position: 'absolute',
+    position: "absolute",
     bottom: 0,
     elevation: 5,
   },
@@ -338,23 +323,23 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     backgroundColor: "#575757",
     borderRadius: 8,
-    alignItems: 'center',
+    alignItems: "center",
   },
   actionIcon: {
     width: 60,
     height: 60,
-    resizeMode: 'contain',
+    resizeMode: "contain",
   },
-  modalView:{
+  modalView: {
     height: 200,
     marginVertical: "auto",
     marginHorizontal: 20,
-    backgroundColor: 'white',
+    backgroundColor: "white",
     borderRadius: 20,
     padding: 20,
-    alignItems: 'center',
+    alignItems: "center",
     justifyContent: "center",
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 2,
@@ -364,7 +349,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   viewTextModal: {
-    textAlignVertical: "center"
+    textAlignVertical: "center",
   },
   modalText: {
     fontFamily: "Minecraft",
@@ -372,20 +357,20 @@ const styles = StyleSheet.create({
     color: "#000",
   },
   closemodal: {
-    backgroundColor: 'red',
-    width: '8%',
+    backgroundColor: "red",
+    width: "8%",
     borderRadius: 5,
     padding: 5,
-    position: 'absolute',
-    left: '100%',
+    position: "absolute",
+    left: "100%",
     top: 10,
     zIndex: 10,
   },
   closemodaltext: {
-    textAlign: 'center',
-    fontFamily: 'Minecraft',
-    color: '#FFF',
+    textAlign: "center",
+    fontFamily: "Minecraft",
+    color: "#FFF",
   },
-})
+});
 
 export default PetDetailScreen;

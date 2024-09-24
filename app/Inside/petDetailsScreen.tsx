@@ -1,4 +1,4 @@
-import PetDetailScreen from "../components/screens/PetDetailsScreen/PetDetailScreen";
+import PetDetailScreen from "../../components/screens/PetDetailsScreen/PetDetailScreen";
 
 const petDetailScreen = () => {
     return (

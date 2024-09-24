@@ -5,11 +5,11 @@ import { useRouter } from "expo-router";
 const MinigamesScreen = () => {
   const router = useRouter();
 
-    const handleTicTacToe = () => {
-        router.push("/gameScreen1");
-    };
+  const handleTicTacToe = () => {
+    router.push("/gameScreen1");
+  };
 
-  const handleFlyerEars = () => {
+  const handleFlyerBlocks = () => {
     router.push("/gameScreen2");
   };
 
@@ -23,8 +23,15 @@ const MinigamesScreen = () => {
         <Text style={styles.gameText}>Tic Tac Toe</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.gameSlot} onPress={handleFlyerEars}>
+      <TouchableOpacity style={styles.gameSlot} onPress={handleFlyerBlocks}>
         <Text style={styles.gameText}>Flyer Blocks</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.backButton}
+        onPress={() => router.push("/petDetailsScreen")}
+      >
+        <Text style={styles.backText}>Back</Text>
       </TouchableOpacity>
     </View>
   );
@@ -33,19 +40,44 @@ const MinigamesScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center", // Alinhamento vertical centralizado
-    alignItems: "center", // Alinhamento horizontal centralizado
-    backgroundColor: "#E67C07", // Fundo laranja
-    paddingVertical: 50, // Espaçamento para ajustar verticalmente
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#E67C07",
+    paddingVertical: 50,
+  },
+  backButton: {
+    width: "70%",
+    height: 60,
+    backgroundColor: "#E62E07", // Vermelho forte para destaque
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 10, // Bordas mais arredondadas
+    borderWidth: 2,
+    borderColor: "#000", // Bordas pretas para contraste
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.8, // Sombra mais intensa
+    shadowRadius: 4,
+    elevation: 8, // Elevação maior para mais destaque
+    marginTop: 20,
+  },
+  backText: {
+    fontSize: 20,
+    fontFamily: "Minecraft",
+    color: "#FFF", // Texto branco para visibilidade
+    textAlign: "center",
+    textShadowColor: "#000",
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
   },
   titleButton: {
-    backgroundColor: "#E62E07", 
+    backgroundColor: "#E62E07",
     width: "80%",
     paddingVertical: 10,
     marginBottom: 40,
     borderRadius: 5,
     borderWidth: 2,
-    borderColor: "#000", 
+    borderColor: "#000",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.8,
@@ -54,8 +86,8 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 22,
-    fontFamily: "Minecraft", 
-    color: "#FFF", 
+    fontFamily: "Minecraft",
+    color: "#FFF",
     textAlign: "center",
     textShadowColor: "#000",
     textShadowOffset: { width: 1, height: 1 },

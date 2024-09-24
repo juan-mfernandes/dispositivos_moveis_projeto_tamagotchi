@@ -33,12 +33,9 @@ export default function RootLayout() {
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <Stack>
           <Stack.Screen name="index" options={{ headerShown: false }} />
-          <Stack.Screen name="petDetailsScreen" options={{ headerShown: false }} />
-          <Stack.Screen name="gameScreen" options={{ headerShown: false }} />
-          <Stack.Screen name="gameScreen1" options={{ headerShown: false }} />
-          <Stack.Screen name="gameScreen2" options={{ headerShown: false }} />
           <Stack.Screen name="chooseScreen" options={{ headerShown: false }} />
           <Stack.Screen name="registerScreen" options={{ headerShown: false }} />
+          <Stack.Screen name="Inside" options={{ headerShown: false }} />
         </Stack>
       </ThemeProvider>
     </SQLiteProvider>
