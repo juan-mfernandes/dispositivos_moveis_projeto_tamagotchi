@@ -139,12 +139,10 @@ const PetDetailScreen = () => {
 
   
   const handleSleep = () => {
-    
     saveData2();
   }
 
   const handlePlay = () => {
-    // bota la dentro incrementFun(10)
     router.push('/Inside/gameScreen')
     saveData();
   }

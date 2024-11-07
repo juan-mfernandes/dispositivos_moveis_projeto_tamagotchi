@@ -1,6 +1,5 @@
 import { SQLiteDatabase } from 'expo-sqlite'
 
-
 // create and init database
 export async function initDatabase(db: SQLiteDatabase) {
 
